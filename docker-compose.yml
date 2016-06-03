@@ -1,0 +1,24 @@
+version: '2'
+services:
+  telemusik:
+    build: .
+    depends_on:
+      - redis
+    volumes:
+      - .:/code
+    links:
+      - redis
+    command: npm start
+    environment:
+      NODE_ENV: 'development'
+      REDIS_HOST: 'redis'
+      REDIS_PORT: 6379
+    env_file:
+      - ./.env
+  redis:
+    image: redis:2.8
+    expose:
+      - 6379
+    ports:
+      - "6380:6379"
+
