@@ -1,7 +1,7 @@
 import { map } from 'lodash'
 
-const randomRecommendation = (spotify,bot,redis) => {
-  return Promise.coroutine(function* (msg) {
+const randomRecommendation = (spotify,bot,redis,auth) => {
+  const rec = Promise.coroutine(function* (msg) {
     const { chat, from } = msg
 
     const artistIds = yield redis.srandmember(from.id,5)
@@ -9,17 +9,23 @@ const randomRecommendation = (spotify,bot,redis) => {
     const opts = {
       parse_mode: 'Markdown'
     }
-    const res = yield spotify.getRecommendations({ min_energy: 0.4, seed_artists: artistIds, limit: 5, min_popularity: 50 })
-    const md = map(res.body.tracks,(track) => {
-      return `
-      *${track.name}*
-      By ${track.artists[0].name}
-      [Preview Link](${track.preview_url})
-      `
-    }).join('\n')
-
-    return yield bot.sendMessage(from.id,md,opts)
+    try {
+      const res = yield spotify.getRecommendations({ min_energy: 0.4, seed_artists: artistIds, limit: 5, min_popularity: 50 })
+      const md = map(res.body.tracks,(track) => {
+        return `*${track.name}*\nBy ${track.artists[0].name}\n[Preview Link](${track.preview_url})`
+      }).join('\n')
+      return yield bot.sendMessage(from.id,md,opts)
+    } catch (err) {
+      if(err.statusCode === 401) {
+        logger.info('Authorization required')
+        yield auth()
+        return rec(msg)
+      } else {
+        logger.error(err)
+      }
+    }
   })
+  return rec
 }
 
 export default randomRecommendation
