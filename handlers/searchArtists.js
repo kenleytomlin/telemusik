@@ -1,4 +1,5 @@
 import { snakeCase, map, chunk, reduce } from 'lodash'
+
 const searchArtists = (spotify,bot,redis) => {
   return Promise.coroutine(function* (msg,match) {
     const { chat, from, text, message_id } = msg
@@ -35,3 +36,4 @@ const searchArtists = (spotify,bot,redis) => {
   })
 }
 export default searchArtists
+

@@ -78,7 +78,7 @@ describe('handlers/randomRecommendation', () => {
     const handler = randomRecommendation(fakeSpotify,fakeBot,fakeRedis,fakeAuthHelper)
 
     return handler(msg).then(() => {
-      expect(fakeSpotify.getRecommendations).toHaveBeenCalledWith({ min_energy: 0.4, seed_artists: fiveArtistIds, limit: 5, min_popularity: 50 })
+      expect(fakeSpotify.getRecommendations).toHaveBeenCalledWith({ min_energy: 0.4, seed_artists: fiveArtistIds.join(','), limit: 5, min_popularity: 50 })
     })
   })
 

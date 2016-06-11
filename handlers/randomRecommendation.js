@@ -10,7 +10,8 @@ const randomRecommendation = (spotify,bot,redis,auth) => {
       parse_mode: 'Markdown'
     }
     try {
-      const res = yield spotify.getRecommendations({ min_energy: 0.4, seed_artists: artistIds, limit: 5, min_popularity: 50 })
+      yield auth()
+      const res = yield spotify.getRecommendations({ min_energy: 0.4, seed_artists: artistIds.join(','), limit: 5, min_popularity: 50 })
       const md = map(res.body.tracks,(track) => {
         return `*${track.name}*\nBy ${track.artists[0].name}\n[Preview Link](${track.preview_url})`
       }).join('\n')

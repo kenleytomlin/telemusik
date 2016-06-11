@@ -11,6 +11,10 @@ global.Promise = Promise
 //Handlers
 import searchArtists from './handlers/searchArtists'
 import addArtist from './handlers/addArtist'
+import randomRecommendation from './handlers/randomRecommendation'
+
+//Helpers
+import authorization from './helpers/spotify/authorization'
 
 const TELEGRAM_TOKEN = process.env['TELEGRAM_TOKEN']
 const SPOTIFY_CLIENT_ID = process.env['SPOTIFY_CLIENT_ID']
@@ -27,3 +31,5 @@ const redis = createClient({ host:REDIS_HOST,port: REDIS_PORT })
 
 bot.onText(/\/searchArtists (.+)/,searchArtists(spotify,bot,redis))
 bot.onText(/\/add (.+)/,addArtist(bot,redis))
+bot.onText(/\/recommend/,randomRecommendation(spotify,bot,redis,authorization(spotify)))
+

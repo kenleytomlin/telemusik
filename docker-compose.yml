@@ -18,8 +18,11 @@ services:
       - ./.env
   redis:
     image: redis:2.8
+    command: redis-server --appendonly yes
     expose:
       - 6379
     ports:
       - "6380:6379"
+    volumes:
+      - ./data/redis:/data
 
