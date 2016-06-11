@@ -7,7 +7,7 @@ describe('handlers/randomRecommendation', () => {
       body: {
         tracks: [
           {
-            album: {},
+            album: { name: 'Album Name' },
             artists: [{ id: '0987654321', name: 'Artist One' }],
             name: 'Track One',
             popularity: 80,
@@ -27,7 +27,7 @@ describe('handlers/randomRecommendation', () => {
       'def'
     ]
     const fakeSpotify = {
-      getRecommendations: expect.createSpy().andReturn(Promise.resolve())
+      getRecommendations: expect.createSpy().andReturn(Promise.resolve(recommendationResponse))
     }
     const fakeBot = {
       sendMessage: expect.createSpy().andReturn(Promise.resolve())
@@ -36,7 +36,7 @@ describe('handlers/randomRecommendation', () => {
       srandmember: expect.createSpy().andReturn(Promise.resolve(fiveArtistIds))
     }
 
-    const message = {
+    const msg = {
       message_id: 12345,
       chat: {
         id: 54321
@@ -52,7 +52,7 @@ describe('handlers/randomRecommendation', () => {
       fakeSpotify,
       fakeBot,
       fakeRedis,
-      message
+      msg
     }
   }
 
@@ -89,14 +89,13 @@ describe('handlers/randomRecommendation', () => {
     }
 
     const md = `
-    *${recommendationResponse.body.tracks[0].name}*
-    *${recommendationResponse.body.tracks[0].album}*
-    By ${recommendationResponse.body.tracks[0].artists[0].name}
-    [Preview Link](${recommendationResponse.body.tracks[0].preview_url})
-    `
+      *${recommendationResponse.body.tracks[0].name}*
+      By ${recommendationResponse.body.tracks[0].artists[0].name}
+      [Preview Link](${recommendationResponse.body.tracks[0].preview_url})
+      `
 
     return handler(msg).then(() => {
-      expect(fakBot.sendMessage).toHaveBeenCalledWith(msg.from.id,md,opts)
+      expect(fakeBot.sendMessage).toHaveBeenCalledWith(msg.from.id,md,opts)
     })
   })
 })
