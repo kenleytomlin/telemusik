@@ -3,11 +3,12 @@ machine:
     - docker
 dependencies:
   pre:
-    - export TELEMUSIK_VERSION=$(cat package.json | grep version | head -1 | awk -F '{ print $2 }' | sed 's/[",]//g')
+    - export TELEMUSIK_VERSION=$(cat package.json | grep version | head -1 | sed 's/[",]//g' | sed 's/[^0-9\.]//g')
   override:
     - docker build -t kenleytomlin/telemusik:$TELEMUSIK_VERSION .
 test:
-  - docker run kenleytomlin/telemusik:$TELEMUSIK_VERSION --rm npm run test
+  override:
+    - docker run --rm kenleytomlin/telemusik:$TELEMUSIK_VERSION npm run test
 
 deployment:
   hub:
