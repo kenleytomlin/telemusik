@@ -12,6 +12,7 @@ global.Promise = Promise
 import searchArtists from './handlers/searchArtists'
 import addArtist from './handlers/addArtist'
 import randomRecommendation from './handlers/randomRecommendation'
+import start from './handlers/start'
 
 //Helpers
 import authorization from './helpers/spotify/authorization'
@@ -29,7 +30,8 @@ const spotify = new SpotifyWebApi({
 })
 const redis = createClient({ host:REDIS_HOST,port: REDIS_PORT })
 
-bot.onText(/\/searchArtists (.+)/,searchArtists(spotify,bot,redis))
+bot.onText(/\/start/,start(bot))
+bot.onText(/\/search (.+)/,searchArtists(spotify,bot,redis))
 bot.onText(/\/add (.+)/,addArtist(bot,redis))
 bot.onText(/\/recommend/,randomRecommendation(spotify,bot,redis,authorization(spotify)))
 
