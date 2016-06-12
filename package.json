@@ -6,7 +6,8 @@
   "scripts": {
     "test": "NODE_ENV=test mocha ./test/handlers/*.spec.js ./test/helpers/**/*.spec.js --compilers js:babel-core/register --recursive --require ./test/setup.js",
     "test:watch": "npm test -- --watch",
-    "start": "/code/node_modules/babel-cli/bin/babel-node.js ./server"
+    "start": "/code/node_modules/babel-cli/bin/babel-node.js ./server",
+    "release:version": "/bin/cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g'"
   },
   "author": "Kenley Tomlin",
   "license": "ISC",
