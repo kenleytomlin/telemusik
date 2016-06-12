@@ -10,12 +10,23 @@ global.logger = bunyan.createLogger({ name: 'telemusik' })
 global.Promise = Promise
 //Handlers
 import searchArtists from './handlers/searchArtists'
-import addArtist from './handlers/addArtist'
 import randomRecommendation from './handlers/randomRecommendation'
 import start from './handlers/start'
+//Callbacks
+import callbacks from './callbacks/index'
 
 //Helpers
 import authorization from './helpers/spotify/authorization'
+
+//Monkey patch telegram to receive callback queries
+tg .prototype.__processUpdate = tg.prototype._processUpdate
+tg.prototype._processUpdate = function _processUpdate(update) {
+    const callbackQuery = update.callback_query;
+    if (callbackQuery)
+        this.emit('callback_query', callbackQuery);
+    else
+        this.__processUpdate(update)
+}
 
 const TELEGRAM_TOKEN = process.env['TELEGRAM_TOKEN']
 const SPOTIFY_CLIENT_ID = process.env['SPOTIFY_CLIENT_ID']
@@ -30,8 +41,17 @@ const spotify = new SpotifyWebApi({
 })
 const redis = createClient({ host:REDIS_HOST,port: REDIS_PORT })
 
+bot.on('callback_query',(msg) => {
+  try {
+    const data = JSON.parse(msg.data)
+    logger.info(`Received callback with type ${data.type}`)
+    callbacks[data.type]({ spotify, bot, redis })(msg,data)
+  } catch (err) {
+    logger.error('Error while processing callback',err)
+  }
+})
+
 bot.onText(/\/start/,start(bot))
 bot.onText(/\/search (.+)/,searchArtists(spotify,bot,redis))
-bot.onText(/\/add (.+)/,addArtist(bot,redis))
 bot.onText(/\/recommend/,randomRecommendation(spotify,bot,redis,authorization(spotify)))
 

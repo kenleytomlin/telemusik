@@ -4,7 +4,7 @@
   "description": "Music bot for telegram",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha ./test/handlers/*.spec.js ./test/helpers/**/*.spec.js --compilers js:babel-core/register --recursive --require ./test/setup.js",
+    "test": "NODE_ENV=test mocha ./test/callbacks/*.spec.js ./test/handlers/*.spec.js ./test/helpers/**/*.spec.js --compilers js:babel-core/register --recursive --require ./test/setup.js",
     "test:watch": "npm test -- --watch",
     "start": "/code/node_modules/babel-cli/bin/babel-node.js ./server"
   },
@@ -21,7 +21,7 @@
     "bluebird": "^3.3.5",
     "bunyan": "^1.8.1",
     "lodash": "^4.13.1",
-    "node-telegram-bot-api": "^0.21.1",
+    "node-telegram-bot-api": "^0.23.3",
     "redis": "^2.6.1",
     "redis-commands": "^1.2.0",
     "spotify-web-api-node": "^2.3.0",
