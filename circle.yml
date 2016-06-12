@@ -5,10 +5,10 @@ dependencies:
   pre:
     - export TELEMUSIK_VERSION=$(cat package.json | grep version | head -1 | sed 's/[",]//g' | sed 's/[^0-9\.]//g')
   override:
-    - docker build -t kenleytomlin/telemusik:$TELEMUSIK_VERSION .
+    - docker build -t kenleytomlin/telemusik:$(echo $TELEMUSIK_VERSION) .
 test:
   override:
-    - docker run --rm kenleytomlin/telemusik:$TELEMUSIK_VERSION npm run test
+    - docker run --rm kenleytomlin/telemusik:$(echo $TELEMUSIK_VERSION) npm run test
 
 deployment:
   hub:
