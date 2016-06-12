@@ -1,4 +1,5 @@
 import { snakeCase, map, chunk, reduce } from 'lodash'
+import { ADD_ARTIST } from '../constants/callbackTypes'
 
 const searchArtists = (spotify,bot,redis) => {
   return Promise.coroutine(function* (msg,match) {
@@ -19,19 +20,13 @@ const searchArtists = (spotify,bot,redis) => {
       if(artists.length === 0) {
         return bot.sendMessage(chat.id,`No artists found for ${match[1]}, refine your search and try again`)
       }
-
+      const searchHash = reduce(artists,(acc,a) => { acc[a.id] = a.name; return acc },{})
       const opts = {
-        reply_to_message_id: msg.message_id,
         reply_markup: JSON.stringify({
-          keyboard: chunk(map(artists,(a) => { return `/add ${a.name}` }),1),
-          resize_keyboard: true,
-          force_reply: true,
-          one_time_keyboard: true
+          inline_keyboard: chunk(map(artists,(a) => { return { text: a.name, callback_data: JSON.stringify({ aid: a.id, type: ADD_ARTIST }) } }),1),
         })
       }
-      const searchHash = reduce(artists,(acc,a) => { acc[a.slug] = a.id; return acc },{})
-      const res = yield redis.hmset('artists_slug_hash',searchHash)
-      logger.info(searchHash)
+      yield redis.hmset('artists_hash',searchHash)
       return bot.sendMessage(chat.id, 'Select the artist you are interested in',opts)
     } catch(err) {
       logger.error(err)

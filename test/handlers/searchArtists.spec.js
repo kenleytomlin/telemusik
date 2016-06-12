@@ -1,4 +1,5 @@
 import searchArtists from '../../handlers/searchArtists'
+import { ADD_ARTIST } from '../../constants/callbackTypes'
 
 describe('handlers/searchArtists', () => {
   function setup() {
@@ -73,26 +74,15 @@ describe('handlers/searchArtists', () => {
 
   context('when there are results from spotify', () => {
     it('calls redis.hmset with the correct arguments', () => {
-      const { fakeSpotify, fakeRedis, fakeBot, msg, match } = setup()
+      const { fakeRedis, fakeSpotify, fakeBot, msg, match } = setup()
       const handler = searchArtists(fakeSpotify,fakeBot,fakeRedis)
       return handler(msg,match).then(() => {
-        expect(fakeRedis.hmset).toHaveBeenCalledWith('artists_slug_hash',{ artist_name: 'artist_id1', not_an_artist: 'artist_id2'})
+        expect(fakeRedis.hmset).toHaveBeenCalledWith('artists_hash',{ artist_id1: 'Artist Name', artist_id2: 'not an artist' })
       })
     })
   })
 
   context('when there are no results from spotify', () => {
-    it('doesn\'t call redis.hmset', () => {
-      const { fakeRedis, fakeBot, msg, match } = setup()
-      const fakeSpotify = {
-        searchArtists: expect.createSpy().andReturn(Promise.resolve({ body: { artists: { items: [] } } }))
-      }
-      const handler = searchArtists(fakeSpotify,fakeBot,fakeRedis)
-      return handler(msg,match).then(() => {
-        expect(fakeRedis.hmset).toNotHaveBeenCalled()
-      })
-    })
-
     it('calls bot.sendMessage with the correct arguments', () => {
       const { fakeRedis, fakeBot, msg, match } = setup()
       const fakeSpotify = {
@@ -109,12 +99,8 @@ describe('handlers/searchArtists', () => {
     const { fakeSpotify, fakeRedis, fakeBot, searchResponse, msg, match } = setup()
     const handler = searchArtists(fakeSpotify,fakeBot,fakeRedis)
     const opts = {
-      reply_to_message_id: msg.message_id,
       reply_markup: JSON.stringify({
-        keyboard: [['/add Artist Name'],['/add not an artist']],
-        resize_keyboard: true,
-        force_reply: true,
-        one_time_keyboard: true
+        inline_keyboard: [[{ text: 'Artist Name', callback_data: JSON.stringify({ aid: 'artist_id1', type: ADD_ARTIST }) }],[{ text: 'not an artist', callback_data: JSON.stringify({ aid: 'artist_id2', type: ADD_ARTIST }) }]],
       })
     }
     return handler(msg,match).then(() => {
