@@ -68,7 +68,7 @@ any of the files.
 ###Features
 So you might be wondering what features are currently implemented
 
-/searchArtists - Uses spotifies artist search to return some results
+/search - Uses Spotify's artist search to return some results
 which generates a keyboard the user can click in the client.
 
 /add - Is used as a response endpoint for /searchArtists.  It takes the
@@ -78,7 +78,7 @@ saves the artist id to a redis set under the user's id.
 And thats it so far....
 
 ###Roadmap
-1. Leverage the spotify recommendation engine to pull a list of
+1. Leverage the Spotify recommendation engine to pull a list of
 songs and push these to users.
 2. Checking for updates for artists a user has followed and pushing these to them
 3. Managing artists the user follows
