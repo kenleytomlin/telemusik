@@ -71,11 +71,37 @@ describe('handlers/searchArtists', () => {
     })
   })
 
-  it('calls redis.hmset with the correct arguments', () => {
-    const { fakeSpotify, fakeRedis, fakeBot, msg, match } = setup()
-    const handler = searchArtists(fakeSpotify,fakeBot,fakeRedis)
-    return handler(msg,match).then(() => {
-      expect(fakeRedis.hmset).toHaveBeenCalledWith('artists_slug_hash',{ artist_name: 'artist_id1', not_an_artist: 'artist_id2'})
+  context('when there are results from spotify', () => {
+    it('calls redis.hmset with the correct arguments', () => {
+      const { fakeSpotify, fakeRedis, fakeBot, msg, match } = setup()
+      const handler = searchArtists(fakeSpotify,fakeBot,fakeRedis)
+      return handler(msg,match).then(() => {
+        expect(fakeRedis.hmset).toHaveBeenCalledWith('artists_slug_hash',{ artist_name: 'artist_id1', not_an_artist: 'artist_id2'})
+      })
+    })
+  })
+
+  context('when there are no results from spotify', () => {
+    it('doesn\'t call redis.hmset', () => {
+      const { fakeRedis, fakeBot, msg, match } = setup()
+      const fakeSpotify = {
+        searchArtists: expect.createSpy().andReturn(Promise.resolve({ body: { artists: { items: [] } } }))
+      }
+      const handler = searchArtists(fakeSpotify,fakeBot,fakeRedis)
+      return handler(msg,match).then(() => {
+        expect(fakeRedis.hmset).toNotHaveBeenCalled()
+      })
+    })
+
+    it('calls bot.sendMessage with the correct arguments', () => {
+      const { fakeRedis, fakeBot, msg, match } = setup()
+      const fakeSpotify = {
+        searchArtists: expect.createSpy().andReturn(Promise.resolve({ body: { artists: { items: [] } } }))
+      }
+      const handler = searchArtists(fakeSpotify,fakeBot,fakeRedis)
+      return handler(msg,match).then(() => {
+        expect(fakeBot.sendMessage).toHaveBeenCalledWith(msg.chat.id,`No artists found for ${match[1]}, refine your search and try again`)
+      })
     })
   })
 

@@ -16,6 +16,10 @@ const searchArtists = (spotify,bot,redis) => {
         }
       })
 
+      if(artists.length === 0) {
+        return bot.sendMessage(chat.id,`No artists found for ${match[1]}, refine your search and try again`)
+      }
+
       const opts = {
         reply_to_message_id: msg.message_id,
         reply_markup: JSON.stringify({
